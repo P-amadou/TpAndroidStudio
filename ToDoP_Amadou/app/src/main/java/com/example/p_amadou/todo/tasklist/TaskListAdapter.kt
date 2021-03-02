@@ -1,31 +1,43 @@
 package com.example.p_amadou.todo.tasklist
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.p_amadou.todo.R
+import com.example.p_amadou.todo.databinding.ItemTaskBinding
 
-class TaskListAdapter(private val taskList: List<Task>) : RecyclerView.Adapter<TaskListAdapter.TaskViewHolder>() {
-    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val titleView: TextView =itemView.findViewById<TextView>(R.id.task_title)
-        fun bind(taskTitle: Task) {
-            itemView.apply { // `apply {}` permet d'éviter de répéter `itemView.*`
-                titleView.text= taskTitle.toString()
+class TaskListAdapter() : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksDiff) {
+    private lateinit var viewBinding : ItemTaskBinding
+    inner class TaskViewHolder(viewBinding: ItemTaskBinding) : RecyclerView.ViewHolder(viewBinding.root) {
+        fun bind(task: Task) {
+            viewBinding.taskTitle.text = task.title
+            viewBinding.taskDescription.text = task.description
+            viewBinding.IbRemoveTask.setOnClickListener {
+                onDeleteTask?.invoke(task)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        return TaskViewHolder(itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false))
+        viewBinding= ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return TaskViewHolder(viewBinding)
     }
 
-    override fun getItemCount(): Int {
-        return taskList.size
-    }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.bind(taskList[position])
+        holder.bind(getItem(position))
+    }
+
+    var onDeleteTask: ((Task) -> Unit)? = null
+}
+
+object TasksDiff : DiffUtil.ItemCallback<Task>() {
+    override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+        return oldItem == newItem
     }
 }
