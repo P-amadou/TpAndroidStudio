@@ -7,14 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.p_amadou.todo.R
 import com.example.p_amadou.todo.databinding.FragmentTaskListBinding
+import com.example.p_amadou.todo.network.Api
+import com.example.p_amadou.todo.network.TasksRepository
 import com.example.p_amadou.todo.task.TaskActivity
 import com.example.p_amadou.todo.task.TaskActivity.Companion.ADD_TASK_REQUEST_CODE
 import com.example.p_amadou.todo.task.TaskActivity.Companion.EDIT_TASK_REQUEST_CODE
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 import java.util.*
 
 class TaskListFragment : Fragment(){
@@ -25,6 +27,7 @@ class TaskListFragment : Fragment(){
                 Task(id = "id_2", title = "Task 2"),
                 Task(id = "id_3", title = "Task 3")
         )
+    private val tasksRepository = TasksRepository()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -50,9 +53,18 @@ class TaskListFragment : Fragment(){
             adapter.submitList(taskList.toList())
         }
         adapter.onDeleteTask = { task ->
-            taskList.remove(task)
+            lifecycleScope.launch {
+                tasksRepository.delete(task.id)
+            }
+            //taskList.remove(task)
+            //adapter.submitList(taskList.toList())
+        }
+        tasksRepository.taskList.observe(viewLifecycleOwner) { taskList ->
+            // mettre à jour la liste dans l'adapteur
             adapter.submitList(taskList.toList())
         }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -72,6 +84,18 @@ class TaskListFragment : Fragment(){
         }
     }
     }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            val userInfo = Api.userService.getInfo().body()!!
+            viewBinding.textView.text = "${userInfo.firstName} ${userInfo.lastName}"
+            tasksRepository.refresh()
+
+        }
+
+    }
+
 }
 
 

@@ -1,7 +1,14 @@
 package com.example.p_amadou.todo.network
 
-    object Api {
-        // constantes qui serviront à faire les requêtes
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+
+object Api {
+
+    // constantes qui serviront à faire les requêtes
         private const val BASE_URL = "https://android-tasks-api.herokuapp.com/api/"
         private const val TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo1MDcsImV4cCI6MTY0NjIzMjQ5MH0.lw4QhVa7z8VVy1yZPKuo8BxiWXQvqaCqLUwTGxLwRJs"
 
@@ -33,4 +40,12 @@ package com.example.p_amadou.todo.network
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .build()
+
+        val userService: UserService by lazy {
+            retrofit.create(UserService::class.java)
+        }
+
+        val tasksWebService: TasksWebService by lazy {
+            retrofit.create(TasksWebService::class.java)
+        }
     }

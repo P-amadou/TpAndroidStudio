@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.p_amadou.todo.databinding.ItemTaskBinding
 
 class TaskListAdapter() : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TasksDiff) {
+    var list: List<Task> = emptyList()
     private lateinit var viewBinding : ItemTaskBinding
     inner class TaskViewHolder(viewBinding: ItemTaskBinding) : RecyclerView.ViewHolder(viewBinding.root) {
         fun bind(task: Task) {
