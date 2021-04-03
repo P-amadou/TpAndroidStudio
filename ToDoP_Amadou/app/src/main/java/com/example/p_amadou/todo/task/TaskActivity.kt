@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import com.example.p_amadou.todo.MainActivity
 import com.example.p_amadou.todo.databinding.FullTaskBinding
 import com.example.p_amadou.todo.tasklist.Task
@@ -22,6 +23,15 @@ class TaskActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = FullTaskBinding.inflate(layoutInflater)
         val viewBind=binding.root
+        val toEditTask : Task? = this.getIntent().getSerializableExtra("editTask") as? Task
+        binding.editTextTitre.addTextChangedListener {
+            val titleText = binding.editTextTitre.text
+            binding.btnValider.isEnabled = titleText != null && titleText.length > 3
+        }
+        if (toEditTask != null) {
+            binding.editTextTitre.setText(toEditTask.title)
+            binding.editTextDescription.setText(toEditTask.description)
+        }
         setContentView(viewBind)
         binding.btnValider.setOnClickListener{
             val titre: String = binding.editTextTitre.text.toString()

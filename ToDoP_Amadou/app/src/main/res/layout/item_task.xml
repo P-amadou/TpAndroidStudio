@@ -23,4 +23,11 @@
         android:background="@android:drawable/ic_menu_delete"
         android:contentDescription="Image Button remove task" />
 
+    <ImageButton
+        android:id="@+id/IbEditTask"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@android:drawable/ic_menu_edit"
+        android:contentDescription="Image Button edit task" />
+
 </LinearLayout>

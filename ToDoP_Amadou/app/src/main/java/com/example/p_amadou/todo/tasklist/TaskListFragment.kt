@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,7 +18,6 @@ import com.example.p_amadou.todo.task.TaskActivity
 import com.example.p_amadou.todo.task.TaskActivity.Companion.ADD_TASK_REQUEST_CODE
 import com.example.p_amadou.todo.task.TaskActivity.Companion.EDIT_TASK_REQUEST_CODE
 import kotlinx.coroutines.launch
-import java.util.*
 
 class TaskListFragment : Fragment(){
     private lateinit var viewBinding : FragmentTaskListBinding
@@ -28,42 +28,53 @@ class TaskListFragment : Fragment(){
                 Task(id = "id_3", title = "Task 3")
         )
     private val tasksRepository = TasksRepository()
+    private val viewModel: TaskListViewModel by viewModels()
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-
         ): View? {
         viewBinding = FragmentTaskListBinding.inflate(inflater, container, false)
         return viewBinding.root
-
-
         }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewBinding.recyclerView.layoutManager = LinearLayoutManager(activity)
         viewBinding.recyclerView.adapter = adapter
         viewBinding.floatingActionButton.setOnClickListener{
 
-            val addTask = Task(id = UUID.randomUUID().toString(), title = "Task ${taskList.size + 1}")
-            taskList.add(taskList.size,addTask)
+            //val addTask = Task(id = UUID.randomUUID().toString(), title = "Task ${taskList.size + 1}")
+            //taskList.add(taskList.size,addTask)
+           // viewModel.addTask()
             val intent = Intent(activity, TaskActivity::class.java)
             startActivityForResult(intent, ADD_TASK_REQUEST_CODE)
-            adapter.submitList(taskList.toList())
-        }
-        adapter.onDeleteTask = { task ->
-            lifecycleScope.launch {
-                tasksRepository.delete(task.id)
-            }
-            //taskList.remove(task)
             //adapter.submitList(taskList.toList())
         }
-        tasksRepository.taskList.observe(viewLifecycleOwner) { taskList ->
-            // mettre à jour la liste dans l'adapteur
-            adapter.submitList(taskList.toList())
+
+        adapter.onDeleteTask = { task ->
+            /*lifecycleScope.launch {
+                tasksRepository.delete(task.id)
+            }*/
+            viewModel.deleteTask(task)
         }
 
+
+
+        viewModel.taskList.observe(viewLifecycleOwner) { newList ->
+            // utliser la liste
+            adapter.currentList.clear()
+            adapter.currentList.addAll(newList)
+            adapter.notifyDataSetChanged()
+
+        }
+
+        adapter.onEditTask = { task ->
+            val intent = Intent(activity, TaskActivity::class.java)
+            intent.putExtra(TaskActivity.TASK_KEY, task)
+            startActivityForResult(intent, ADD_TASK_REQUEST_CODE)
+        }
 
     }
 
@@ -87,11 +98,12 @@ class TaskListFragment : Fragment(){
 
     override fun onResume() {
         super.onResume()
+        viewModel.loadTasks()
         lifecycleScope.launch {
             val userInfo = Api.userService.getInfo().body()!!
             viewBinding.textView.text = "${userInfo.firstName} ${userInfo.lastName}"
             tasksRepository.refresh()
-
+            viewModel.loadTasks()
         }
 
     }

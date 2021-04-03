@@ -17,6 +17,9 @@ class TaskListAdapter() : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(Task
             viewBinding.IbRemoveTask.setOnClickListener {
                 onDeleteTask?.invoke(task)
             }
+            viewBinding.IbEditTask.setOnClickListener {
+                onEditTask?.invoke(task)
+            }
         }
     }
 
@@ -31,6 +34,7 @@ class TaskListAdapter() : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(Task
     }
 
     var onDeleteTask: ((Task) -> Unit)? = null
+    var onEditTask: ((Task) -> Unit)? = null
 }
 
 object TasksDiff : DiffUtil.ItemCallback<Task>() {
