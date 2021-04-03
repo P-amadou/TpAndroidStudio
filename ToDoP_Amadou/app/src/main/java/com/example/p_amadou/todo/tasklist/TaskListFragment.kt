@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
 import com.example.p_amadou.todo.databinding.FragmentTaskListBinding
 import com.example.p_amadou.todo.network.Api
 import com.example.p_amadou.todo.network.TasksRepository
@@ -101,6 +102,7 @@ class TaskListFragment : Fragment(){
         viewModel.loadTasks()
         lifecycleScope.launch {
             val userInfo = Api.userService.getInfo().body()!!
+            viewBinding.imageViewAvatar.load("https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/3064440.png")
             viewBinding.textView.text = "${userInfo.firstName} ${userInfo.lastName}"
             tasksRepository.refresh()
             viewModel.loadTasks()
