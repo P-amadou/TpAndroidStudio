@@ -18,6 +18,8 @@ import com.example.p_amadou.todo.task.TaskActivity
 import com.example.p_amadou.todo.task.TaskActivity.Companion.ADD_TASK_REQUEST_CODE
 import com.example.p_amadou.todo.task.TaskActivity.Companion.EDIT_TASK_REQUEST_CODE
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
+import okhttp3.internal.notifyAll
 
 class TaskListFragment : Fragment(){
     private lateinit var viewBinding : FragmentTaskListBinding
@@ -63,11 +65,9 @@ class TaskListFragment : Fragment(){
 
 
         viewModel.taskList.observe(viewLifecycleOwner) { newList ->
-            // utliser la liste
-            adapter.currentList.clear()
-            adapter.currentList.addAll(newList)
+            // utliser la list
+            adapter.list= newList
             adapter.notifyDataSetChanged()
-
         }
 
         adapter.onEditTask = { task ->
